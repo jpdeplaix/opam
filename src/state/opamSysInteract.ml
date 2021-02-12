@@ -370,6 +370,11 @@ let packages_status packages =
     in
     compute_sets sys_installed
   | Homebrew ->
+    let sys_available =
+      run_query_command "brew" ["formulae"]
+      |> List.map OpamSysPkg.of_string
+      |> OpamSysPkg.Set.of_list
+    in
     (* accept 'pkgname' and 'pkgname@version'
        exampe output
        >openssl@1.1
@@ -386,7 +391,7 @@ let packages_status packages =
       |> List.map OpamSysPkg.of_string
       |> OpamSysPkg.Set.of_list
     in
-    compute_sets sys_installed
+    compute_sets ~sys_available sys_installed
   | Macports ->
     let str_pkgs =
       OpamSysPkg.(Set.fold (fun p acc -> to_string p :: acc) packages [])
